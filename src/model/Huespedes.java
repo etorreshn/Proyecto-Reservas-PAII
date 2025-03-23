@@ -7,7 +7,7 @@ import java.util.Objects;
 
 /**
  *
- * @author Edwin
+ * @author Edwin Torres
  */
 public class Huespedes {
 
