@@ -41,7 +41,7 @@ public class JFMenu extends javax.swing.JFrame {
 
         jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        jButton1.setIcon(new javax.swing.ImageIcon("C:\\Users\\Edwin\\Documents\\NetBeansProjects\\Reservas\\src\\imgs\\huespedIcon128.png")); // NOI18N
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imgs/huespedIcon128.png"))); // NOI18N
         jButton1.setText("Huespedes");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -49,7 +49,7 @@ public class JFMenu extends javax.swing.JFrame {
             }
         });
 
-        jButton2.setIcon(new javax.swing.ImageIcon("C:\\Users\\Edwin\\Documents\\NetBeansProjects\\Reservas\\src\\imgs\\reservaIcon128.png")); // NOI18N
+        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imgs/reservaIcon128.png"))); // NOI18N
         jButton2.setText("Reservas");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -57,11 +57,11 @@ public class JFMenu extends javax.swing.JFrame {
             }
         });
 
-        jButton3.setIcon(new javax.swing.ImageIcon("C:\\Users\\Edwin\\Documents\\NetBeansProjects\\Reservas\\src\\imgs\\powerIcon128G.png")); // NOI18N
+        jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imgs/powerIcon128G.png"))); // NOI18N
         jButton3.setText("Salir");
         jButton3.setToolTipText("Salir del sistema");
         jButton3.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton3.setRolloverIcon(new javax.swing.ImageIcon("C:\\Users\\Edwin\\Documents\\NetBeansProjects\\Reservas\\src\\imgs\\powerIcon128R.png")); // NOI18N
+        jButton3.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/imgs/powerIcon128R.png"))); // NOI18N
         jButton3.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -73,7 +73,7 @@ public class JFMenu extends javax.swing.JFrame {
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Menú Principal");
 
-        jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/usersIcon128.png"))); // NOI18N
+        jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imgs/usersIcon128.png"))); // NOI18N
         jButton4.setText("Usuarios");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -81,7 +81,7 @@ public class JFMenu extends javax.swing.JFrame {
             }
         });
 
-        jButton5.setIcon(new javax.swing.ImageIcon("C:\\Users\\Edwin\\Documents\\NetBeansProjects\\Reservas\\src\\imgs\\RolesIcon128.png")); // NOI18N
+        jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imgs/RolesIcon128.png"))); // NOI18N
         jButton5.setText("Roles");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
