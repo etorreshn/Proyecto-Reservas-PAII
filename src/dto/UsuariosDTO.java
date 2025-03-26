@@ -42,7 +42,7 @@ public class UsuariosDTO {
     }
 
     public void setUsuario(String usuario) {
-        this.nombre = usuario;
+        this.usuario = usuario;
     }
     
     public String getNombre() {

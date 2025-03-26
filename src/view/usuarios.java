@@ -48,6 +48,7 @@ public class usuarios extends javax.swing.JDialog {
         jTable1 = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Usuarios");
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -57,7 +58,7 @@ public class usuarios extends javax.swing.JDialog {
                 {null, null, null, null, null, null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4", "Title 5", "Title 6", "Title 7"
+                "Id", "Usuario", "Nombre", "Email", "Contraseña", "Rol", "Activo"
             }
         ));
         jScrollPane1.setViewportView(jTable1);
