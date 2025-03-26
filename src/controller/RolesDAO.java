@@ -29,7 +29,8 @@ public class RolesDAO implements BDOperations {
                 RolesDTO rol = new RolesDTO(
                     rs.getInt("id"),
                     rs.getString("nombre"),
-                    rs.getString("descripcion")
+                    rs.getString("descripcion"),
+                    rs.getInt("activo")
                 );
                 lista.add(rol);
             }
@@ -53,7 +54,8 @@ public class RolesDAO implements BDOperations {
                     rol = new RolesDTO(
                         rs.getInt("id"),
                         rs.getString("nombre"),
-                        rs.getString("descripcion")
+                        rs.getString("descripcion"),
+                        rs.getInt("activo")
                     );
                 }
             }

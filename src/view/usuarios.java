@@ -5,7 +5,10 @@
 package view;
 
 import controller.UsuariosDAO;
+import dto.UsuariosDTO;
+import java.util.List;
 import javax.swing.table.DefaultTableModel;
+import model.Usuarios;
 
 /**
  *
@@ -27,8 +30,10 @@ public class usuarios extends javax.swing.JDialog {
         setLocationRelativeTo(null);
         this.parent = parent;
         modeloTabla = (DefaultTableModel) jTable1.getModel();
+        cargarDatos();
     }
 
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -46,13 +51,13 @@ public class usuarios extends javax.swing.JDialog {
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Title 1", "Title 2", "Title 3", "Title 4", "Title 5", "Title 6", "Title 7"
             }
         ));
         jScrollPane1.setViewportView(jTable1);
@@ -63,8 +68,8 @@ public class usuarios extends javax.swing.JDialog {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 456, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(92, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 772, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -112,7 +117,38 @@ public class usuarios extends javax.swing.JDialog {
             }
         });
     }
-
+    private void cargarDatos() {
+        modeloTabla.setRowCount(0);
+    
+        // Obtener la lista de objetos desde el DAO
+        List<Object> usuarios = usuariosDAO.getAll();
+        
+    for(Object usuarioObj : usuarios) {
+        if(usuarioObj instanceof UsuariosDTO) {
+            UsuariosDTO usuarioDTO = (UsuariosDTO) usuarioObj;
+            modeloTabla.addRow(new Object[]{
+                usuarioDTO.getId(), 
+                usuarioDTO.getUsuario(), 
+                usuarioDTO.getNombre(),    
+                usuarioDTO.getEmail(),
+                usuarioDTO.getContrasena(), // Asegúrate que el nombre del método coincide
+                usuarioDTO.getIdRol() ,     // con tu clase UsuariosDTO
+                usuarioDTO.getActivo()
+            });
+        } else if(usuarioObj instanceof Usuarios) {
+            Usuarios usuario = (Usuarios) usuarioObj;
+            modeloTabla.addRow(new Object[]{
+                usuario.getId(), 
+                usuario.getUsuario(),
+                usuario.getNombre(), 
+                usuario.getEmail(),     // Asumiendo que Usuarios tiene estos campos
+                usuario.getContrasena(),
+                usuario.getRol(),
+                usuario.getActivo()
+            });
+        }
+    }
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;

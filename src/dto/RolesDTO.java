@@ -12,14 +12,17 @@ public class RolesDTO {
     private int id;
     private String nombre;
     private String descripcion;
+    private int activo;
 
     public RolesDTO() {}
 
-    public RolesDTO(int id, String nombre, String descripcion) {
+    public RolesDTO(int id, String nombre, String descripcion, int activo) {
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
+        this.activo = activo;
     }
+
 
     public int getId() {
         return id;
@@ -44,5 +47,13 @@ public class RolesDTO {
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
+    
+        public int getActivo() {
+       return activo;
+    }
+
+    public void setActivo(int activoq) {
+      this.id = activo;
+   }
 }
 

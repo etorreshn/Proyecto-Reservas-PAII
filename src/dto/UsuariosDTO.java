@@ -10,19 +10,23 @@ package dto;
  */
 public class UsuariosDTO {
     private int id;
+    private String usuario;
     private String nombre;
     private String email;
-    private String contraseña;
+    private String contrasena;
     private int idRol;
+    private int activo;
 
     public UsuariosDTO() {}
 
-    public UsuariosDTO(int id, String nombre, String email, String contraseña, int idRol) {
+    public UsuariosDTO(int id, String usuario,String nombre, String email, String contrasena, int idRol, int activo) {
         this.id = id;
+        this.usuario = usuario;
         this.nombre = nombre;
         this.email = email;
-        this.contraseña = contraseña;
+        this.contrasena = contrasena;
         this.idRol = idRol;
+        this.activo = activo;
     }
 
     public int getId() {
@@ -33,6 +37,14 @@ public class UsuariosDTO {
         this.id = id;
     }
 
+        public String getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(String usuario) {
+        this.nombre = usuario;
+    }
+    
     public String getNombre() {
         return nombre;
     }
@@ -49,12 +61,12 @@ public class UsuariosDTO {
         this.email = email;
     }
 
-    public String getContraseña() {
-        return contraseña;
+    public String getContrasena() {
+        return contrasena;
     }
 
-    public void setContraseña(String contraseña) {
-        this.contraseña = contraseña;
+    public void setContraseña(String contrasena) {
+        this.contrasena = contrasena;
     }
 
     public int getIdRol() {
@@ -64,5 +76,13 @@ public class UsuariosDTO {
     public void setIdRol(int idRol) {
         this.idRol = idRol;
     }
+    
+            public int getActivo() {
+       return activo;
+    }
+
+    public void setActivo(int activo) {
+      this.id = activo;
+   }
 }
 

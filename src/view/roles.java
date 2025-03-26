@@ -9,6 +9,7 @@ import dto.RolesDTO;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
+import model.Roles;
 
 /**
  *
@@ -20,8 +21,9 @@ public class roles extends javax.swing.JDialog {
      * Creates new form Roles
      */
     private DefaultTableModel modeloTabla;
-    private RolesDAO reservasDAO = new RolesDAO();
+    private RolesDAO rolesDAO = new RolesDAO();
     private JFMenu parent;
+    private RolesDAO dao = new RolesDAO();
     
     public roles(JFMenu parent, boolean modal) {
         super(parent, modal); 
@@ -120,14 +122,32 @@ public class roles extends javax.swing.JDialog {
     }
 private void cargarDatos() {
     modeloTabla.setRowCount(0);
-
+    
     // Obtener la lista de objetos desde el DAO
-    //List<Object> listaObjetos = new RolesDAO.getAll(); // Obtener List<Object>
-
-    // Crear una lista de RolesDTO
-    List<RolesDTO> roles = new ArrayList<>();
-
-
+    List<Object> roles = rolesDAO.getAll();
+    
+    for(Object roles_uncast : roles) {
+        // Verificar el tipo del objeto antes de hacer el casting
+        if(roles_uncast instanceof RolesDTO) {
+            RolesDTO rolDTO = (RolesDTO) roles_uncast;
+            // Convertir el DTO a Model (Roles) si es necesario
+            // O usar directamente los datos del DTO
+            modeloTabla.addRow(new Object[]{
+                rolDTO.getId(), 
+                rolDTO.getNombre(), 
+                rolDTO.getDescripcion(),
+                rolDTO.getActivo()
+            });
+        } else if(roles_uncast instanceof Roles) {
+            Roles rol = (Roles) roles_uncast;
+            modeloTabla.addRow(new Object[]{
+                rol.getId(), 
+                rol.getNombre(), 
+                rol.getDescripcion(),
+                rol.getActivo()
+            });
+        }
+    }
 }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
