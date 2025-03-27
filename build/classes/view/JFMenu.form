@@ -55,11 +55,6 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="1" attributes="0">
-                  <EmptySpace max="32767" attributes="0"/>
-                  <Component id="jButton3" min="-2" pref="224" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="303" max="-2" attributes="0"/>
-              </Group>
               <Group type="102" attributes="0">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
@@ -81,6 +76,11 @@
                   </Group>
                   <EmptySpace pref="175" max="32767" attributes="0"/>
               </Group>
+              <Group type="102" alignment="1" attributes="0">
+                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                  <Component id="jButton3" min="-2" pref="65" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="81" max="-2" attributes="0"/>
+              </Group>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
@@ -98,9 +98,9 @@
                       <Component id="jButton2" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jButton5" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace pref="151" max="32767" attributes="0"/>
                   <Component id="jButton3" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="92" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="43" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -109,7 +109,7 @@
         <Component class="javax.swing.JButton" name="jButton1">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="2" name="C:\Users\Edwin\Documents\NetBeansProjects\Reservas\src\imgs\huespedIcon128.png"/>
+              <Image iconType="3" name="/imgs/huespedIcon128.png"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Huespedes"/>
           </Properties>
@@ -120,7 +120,7 @@
         <Component class="javax.swing.JButton" name="jButton2">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="2" name="C:\Users\Edwin\Documents\NetBeansProjects\Reservas\src\imgs\reservaIcon128.png"/>
+              <Image iconType="3" name="/imgs/reservaIcon128.png"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Reservas"/>
           </Properties>
@@ -131,13 +131,13 @@
         <Component class="javax.swing.JButton" name="jButton3">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="2" name="C:\Users\Edwin\Documents\NetBeansProjects\Reservas\src\imgs\powerIcon128G.png"/>
+              <Image iconType="3" name="/imgs/powerIcon32G.png"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Salir"/>
             <Property name="toolTipText" type="java.lang.String" value="Salir del sistema"/>
             <Property name="horizontalTextPosition" type="int" value="0"/>
             <Property name="rolloverIcon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="2" name="C:\Users\Edwin\Documents\NetBeansProjects\Reservas\src\imgs\powerIcon128R.png"/>
+              <Image iconType="3" name="/imgs/powerIcon32R.png"/>
             </Property>
             <Property name="verticalTextPosition" type="int" value="3"/>
           </Properties>
@@ -157,7 +157,7 @@
         <Component class="javax.swing.JButton" name="jButton4">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/view/usersIcon128.png"/>
+              <Image iconType="3" name="/imgs/usersIcon128.png"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Usuarios"/>
           </Properties>
@@ -168,7 +168,7 @@
         <Component class="javax.swing.JButton" name="jButton5">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="2" name="C:\Users\Edwin\Documents\NetBeansProjects\Reservas\src\imgs\RolesIcon128.png"/>
+              <Image iconType="3" name="/imgs/RolesIcon128.png"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Roles"/>
           </Properties>

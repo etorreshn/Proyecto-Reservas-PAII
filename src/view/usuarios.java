@@ -6,7 +6,9 @@ package view;
 
 import controller.UsuariosDAO;
 import dto.UsuariosDTO;
+import java.sql.SQLException;
 import java.util.List;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import model.Usuarios;
 
@@ -24,7 +26,7 @@ public class usuarios extends javax.swing.JDialog {
     private UsuariosDAO usuariosDAO = new UsuariosDAO();
     private JFMenu parent;
     
-    public usuarios(JFMenu parent, boolean modal) {
+    public usuarios(JFMenu parent, boolean modal) throws SQLException {
         super(parent, modal); 
         initComponents();
         setLocationRelativeTo(null);
@@ -67,8 +69,18 @@ public class usuarios extends javax.swing.JDialog {
         jScrollPane1.setViewportView(jTable1);
 
         jButton1.setText("Nuevo");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jButton2.setText("Editar");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setText("Eliminar");
 
@@ -105,6 +117,73 @@ public class usuarios extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+                UsuariosDTO oUsuariosDTO = new UsuariosDTO();
+        // Crear la ventana para la operación de insertar (INS)
+        OpUsuarios oOpUsuarios = new OpUsuarios(this, true, "INS", oUsuariosDTO);
+        oOpUsuarios.setVisible(true);  // Mostrar la ventana de operación
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+    int fila = jTable1.getSelectedRow();
+    
+    if (fila != -1) {
+        try {
+            // Obtener valores de la tabla - ASEGURAR LOS ÍNDICES CORRECTOS
+             //modeloTabla = jTable1.getModel();
+            
+            int idUsuario = Integer.parseInt(modeloTabla.getValueAt(fila, 0).toString());
+            String usuario = modeloTabla.getValueAt(fila, 1).toString();
+            String nombre = modeloTabla.getValueAt(fila, 2).toString();
+            String email = modeloTabla.getValueAt(fila, 3).toString();
+            
+            // La contraseña debe manejarse como String - NO PARSEAR A NÚMERO
+            String contrasenaHash = modeloTabla.getValueAt(fila, 4).toString();
+            
+            // Campos numéricos
+            int idRol = Integer.parseInt(modeloTabla.getValueAt(fila, 5).toString());
+            int activo = Integer.parseInt(modeloTabla.getValueAt(fila, 6).toString());
+
+            // Validar campo activo
+            if(activo != 0 && activo != 1) {
+                JOptionPane.showMessageDialog(this, 
+                    "El valor de 'activo' debe ser 0 o 1", 
+                    "Error en datos", 
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Crear y configurar el DTO
+            UsuariosDTO usuarioDTO = new UsuariosDTO(); 
+            usuarioDTO.setId(idUsuario); 
+            usuarioDTO.setUsuario(usuario);
+            usuarioDTO.setNombre(nombre);
+            usuarioDTO.setEmail(email);
+            usuarioDTO.setContrasena(contrasenaHash); // Asignar el hash directamente
+            usuarioDTO.setId_Rol(idRol);
+            usuarioDTO.setActivo(activo); 
+
+            // Crear y mostrar ventana de edición
+            OpUsuarios oOpUsuarios = new OpUsuarios(this, true, "UPD", usuarioDTO);
+            oOpUsuarios.setVisible(true);
+            
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, 
+                "Error en los datos numéricos (ID, Rol o Activo). Verifique los tipos de datos.", 
+                "Error de formato", 
+                JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    } else {
+        JOptionPane.showMessageDialog(this, 
+            "Debe seleccionar un usuario para editar", 
+            "ERROR", 
+            JOptionPane.ERROR_MESSAGE);
+    }
+    }//GEN-LAST:event_jButton2ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -140,7 +219,7 @@ public class usuarios extends javax.swing.JDialog {
             }
         });
     }
-    private void cargarDatos() {
+    private void cargarDatos() throws SQLException {
         modeloTabla.setRowCount(0);
     
         // Obtener la lista de objetos desde el DAO
@@ -155,7 +234,7 @@ public class usuarios extends javax.swing.JDialog {
                 usuarioDTO.getNombre(),    
                 usuarioDTO.getEmail(),
                 usuarioDTO.getContrasena(), // Asegúrate que el nombre del método coincide
-                usuarioDTO.getIdRol() ,     // con tu clase UsuariosDTO
+                usuarioDTO.getId_Rol() ,     // con tu clase UsuariosDTO
                 usuarioDTO.getActivo()
             });
         } else if(usuarioObj instanceof Usuarios) {

@@ -14,19 +14,23 @@ public class UsuariosDTO {
     private String nombre;
     private String email;
     private String contrasena;
-    private int idRol;
+    private int id_Rol;
     private int activo;
+    private String salt;
 
     public UsuariosDTO() {}
 
-    public UsuariosDTO(int id, String usuario,String nombre, String email, String contrasena, int idRol, int activo) {
+    public UsuariosDTO(int id, String usuario, String nombre, String email, String contrasena, int id_Rol, int activo) {
         this.id = id;
         this.usuario = usuario;
         this.nombre = nombre;
         this.email = email;
         this.contrasena = contrasena;
-        this.idRol = idRol;
+        this.id_Rol = id_Rol;
         this.activo = activo;
+        this.salt = salt;
+        
+        
     }
 
     public int getId() {
@@ -65,24 +69,32 @@ public class UsuariosDTO {
         return contrasena;
     }
 
-    public void setContraseña(String contrasena) {
+    public void setContrasena(String contrasena) {
         this.contrasena = contrasena;
     }
 
-    public int getIdRol() {
-        return idRol;
+    public int getId_Rol() {
+        return id_Rol;
     }
 
-    public void setIdRol(int idRol) {
-        this.idRol = idRol;
+    public void setId_Rol(int id_Rol) {
+        this.id_Rol = id_Rol;
     }
     
-            public int getActivo() {
+    public int getActivo() {
        return activo;
     }
 
     public void setActivo(int activo) {
-      this.id = activo;
+      this.activo = activo;
    }
+    
+       public String getSalt() {
+        return contrasena;
+    }
+
+    public void setSalt(String contrasena) {
+        this.contrasena = contrasena;
+    }
 }
 
