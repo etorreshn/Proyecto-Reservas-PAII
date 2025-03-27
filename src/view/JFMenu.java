@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package view;
-
+import java.sql.SQLException;  // ¡Este import es obligatorio!
 /**
  *
  * @author Edwin
@@ -170,8 +170,14 @@ public class JFMenu extends javax.swing.JFrame {
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
-        usuarios ousuarios = new usuarios(this,true);
-        ousuarios.setVisible(true);
+        usuarios ousuarios;
+        try {
+            ousuarios = new usuarios(this, true);
+            ousuarios.setVisible(true);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Handle the exception appropriately (show error message, etc.)
+        }
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
