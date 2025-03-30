@@ -7,6 +7,7 @@ package view;
 
 import controller.UsuariosDAO;
 import dto.UsuariosDTO;
+import java.util.Arrays;
 import javax.swing.JOptionPane;
 import utils.PasswordUtils;
 
@@ -41,8 +42,8 @@ public class OpUsuarios extends javax.swing.JDialog {
         jTextField4.setText(dto.getEmail());
         
         // Para la contraseña, puedes usar un placeholder
-        jTextField5.setText(""); // O mostrar "********"
-        jTextField5.putClientProperty("originalHash", dto.getContrasena());
+        jPasswordField1.setText(""); // O mostrar "********"
+        jPasswordField1.putClientProperty("originalHash", dto.getContrasena());
         
         jTextField6.setText(String.valueOf(dto.getId_Rol()));
         jTextField7.setText(String.valueOf(dto.getActivo()));
@@ -73,7 +74,7 @@ public class OpUsuarios extends javax.swing.JDialog {
         jLabel7 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
-        jTextField5 = new javax.swing.JTextField();
+        jPasswordField1 = new javax.swing.JPasswordField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -112,7 +113,7 @@ public class OpUsuarios extends javax.swing.JDialog {
 
         jButton2.setText("Cancelar");
 
-        jTextField5.setText("jTextField5");
+        jPasswordField1.setText("jPasswordField1");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -138,7 +139,7 @@ public class OpUsuarios extends javax.swing.JDialog {
                             .addComponent(jTextField4)
                             .addComponent(jTextField6)
                             .addComponent(jTextField7)
-                            .addComponent(jTextField5)))
+                            .addComponent(jPasswordField1)))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jButton1)
@@ -168,7 +169,7 @@ public class OpUsuarios extends javax.swing.JDialog {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(26, 26, 26)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -189,111 +190,97 @@ public class OpUsuarios extends javax.swing.JDialog {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 // TODO add your handling code here:
-    if (Mode.equals("INS")) {
-        System.out.println("Entró a INS");
-
-        // Validación de todos los campos
-        boolean validacion = validarCamposUsuario();
-        if (validacion) {
-            UsuariosDTO usuarioDTO = new UsuariosDTO();
-            usuarioDTO.setId(Integer.parseInt(jTextField1.getText()));
-            usuarioDTO.setUsuario(jTextField2.getText());
-            usuarioDTO.setNombre(jTextField3.getText());
-            usuarioDTO.setEmail(jTextField4.getText());
-            
-            // Encriptar la contraseña
-            String contrasenaPlana = jTextField5.getText();
-            String salt = PasswordUtils.generateSalt();
-            String contrasenaEncriptada = PasswordUtils.hashPassword(contrasenaPlana, salt);
-            usuarioDTO.setContrasena(contrasenaEncriptada);
-            usuarioDTO.setSalt(salt);
-            
-            try {
-                usuarioDTO.setId_Rol(Integer.parseInt(jTextField6.getText())); // Corregido a setId_Rol()
-                int valorActivo = Integer.parseInt(jTextField7.getText());
-                if(valorActivo != 0 && valorActivo != 1) {
-                    throw new IllegalArgumentException("Activo debe ser 0 o 1");
-                }
-                usuarioDTO.setActivo(valorActivo);
-                
-                UsuariosDAO usuariosDAO = new UsuariosDAO(); 
-                boolean operacion = usuariosDAO.insertar(usuarioDTO);
-                
-                if (operacion) {
-                    JOptionPane.showMessageDialog(this, "Usuario insertado exitosamente.", 
-                        "ÉXITO", JOptionPane.INFORMATION_MESSAGE);
-                    this.dispose();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Error al insertar el usuario.", 
-                        "ERROR", JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Los campos 'Rol' y 'Activo' deben ser números válidos.", 
-                    "ERROR DE VALIDACIÓN", JOptionPane.ERROR_MESSAGE);
-            } catch (IllegalArgumentException e) {
-                JOptionPane.showMessageDialog(this, e.getMessage(), 
-                    "ERROR DE VALIDACIÓN", JOptionPane.ERROR_MESSAGE);
+if (Mode.equals("INS")) {
+    // Validación de todos los campos
+    boolean validacion = validarCamposUsuario();
+    if (validacion) {
+        UsuariosDTO usuarioDTO = new UsuariosDTO();
+        usuarioDTO.setId(Integer.parseInt(jTextField1.getText()));
+        usuarioDTO.setUsuario(jTextField2.getText());
+        usuarioDTO.setNombre(jTextField3.getText());
+        usuarioDTO.setEmail(jTextField4.getText());
+        
+        // Obtener contraseña del JPasswordField
+        char[] passwordChars = jPasswordField1.getPassword();
+        try {
+            usuarioDTO.setId_Rol(Integer.parseInt(jTextField6.getText()));
+            int valorActivo = Integer.parseInt(jTextField7.getText());
+            if(valorActivo != 0 && valorActivo != 1) {
+                throw new IllegalArgumentException("Activo debe ser 0 o 1");
             }
-        }
-    } else if (Mode.equals("UPD")) {
-        System.out.println("Entró a UPD");
-
-        // Validación de todos los campos
-        boolean validacion = validarCamposUsuario();
-        if (validacion) {
-            UsuariosDTO usuarioDTO = new UsuariosDTO();
-            usuarioDTO.setId(Integer.parseInt(jTextField1.getText()));
-            usuarioDTO.setUsuario(jTextField2.getText());
-            usuarioDTO.setNombre(jTextField3.getText());
-            usuarioDTO.setEmail(jTextField4.getText());
+            usuarioDTO.setActivo(valorActivo);
             
-            // Manejo especial de la contraseña
-            String nuevaContrasena = jTextField5.getText();
-            if(!nuevaContrasena.isEmpty()) {
-                String salt = PasswordUtils.generateSalt();
-                String contrasenaEncriptada = PasswordUtils.hashPassword(nuevaContrasena, salt);
-                usuarioDTO.setContrasena(contrasenaEncriptada);
-                usuarioDTO.setSalt(salt);
+            // Cambio importante: pasar el passwordChars directamente al DAO
+            boolean operacion = dao.insertar(usuarioDTO, passwordChars);
+            
+            if (operacion) {
+                JOptionPane.showMessageDialog(this, "Usuario insertado exitosamente.", 
+                    "ÉXITO", JOptionPane.INFORMATION_MESSAGE);
+                this.dispose();
             } else {
-                // Mantener la contraseña actual si no se proporciona una nueva
-                String originalHash = (String) jTextField5.getClientProperty("originalHash");
-                usuarioDTO.setContrasena(originalHash);
+                JOptionPane.showMessageDialog(this, "Error al insertar el usuario.", 
+                    "ERROR", JOptionPane.ERROR_MESSAGE);
             }
-            
-            try {
-                usuarioDTO.setId_Rol(Integer.parseInt(jTextField6.getText()));
-                int valorActivo = Integer.parseInt(jTextField7.getText());
-                if(valorActivo != 0 && valorActivo != 1) {
-                    throw new IllegalArgumentException("Activo debe ser 0 o 1");
-                }
-                usuarioDTO.setActivo(valorActivo);
-                
-                UsuariosDAO usuariosDAO = new UsuariosDAO();
-                boolean operacion = usuariosDAO.actualizar(usuarioDTO);
-                
-                if (operacion) {
-                    JOptionPane.showMessageDialog(this, "Usuario actualizado exitosamente.", 
-                        "ÉXITO", JOptionPane.INFORMATION_MESSAGE);
-                    this.dispose();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Error al actualizar el usuario.", 
-                        "ERROR", JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Los campos 'Rol' y 'Activo' deben ser números válidos.", 
-                    "ERROR DE VALIDACIÓN", JOptionPane.ERROR_MESSAGE);
-            } catch (IllegalArgumentException e) {
-                JOptionPane.showMessageDialog(this, e.getMessage(), 
-                    "ERROR DE VALIDACIÓN", JOptionPane.ERROR_MESSAGE);
-            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Los campos 'Rol' y 'Activo' deben ser números válidos.", 
+                "ERROR DE VALIDACIÓN", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), 
+                "ERROR DE VALIDACIÓN", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            Arrays.fill(passwordChars, '\0');
         }
     }
+}
+else if (Mode.equals("UPD")) {
+    // Validación de todos los campos
+    boolean validacion = validarCamposUsuario();
+    if (validacion) {
+        UsuariosDTO usuarioDTO = new UsuariosDTO();
+        usuarioDTO.setId(Integer.parseInt(jTextField1.getText()));
+        usuarioDTO.setUsuario(jTextField2.getText());
+        usuarioDTO.setNombre(jTextField3.getText());
+        usuarioDTO.setEmail(jTextField4.getText());
+        
+        // Obtener contraseña del JPasswordField
+        char[] passwordChars = jPasswordField1.getPassword();
+        try {
+            usuarioDTO.setId_Rol(Integer.parseInt(jTextField6.getText()));
+            int valorActivo = Integer.parseInt(jTextField7.getText());
+            if(valorActivo != 0 && valorActivo != 1) {
+                throw new IllegalArgumentException("Activo debe ser 0 o 1");
+            }
+            usuarioDTO.setActivo(valorActivo);
+            
+            // Cambio importante: pasar el passwordChars directamente al DAO
+            boolean operacion = dao.actualizar(usuarioDTO, passwordChars);
+            
+            if (operacion) {
+                JOptionPane.showMessageDialog(this, "Usuario actualizado exitosamente.", 
+                    "ÉXITO", JOptionPane.INFORMATION_MESSAGE);
+                this.dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Error al actualizar el usuario.", 
+                    "ERROR", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Los campos 'Rol' y 'Activo' deben ser números válidos.", 
+                "ERROR DE VALIDACIÓN", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), 
+                "ERROR DE VALIDACIÓN", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            Arrays.fill(passwordChars, '\0');
+        }
+    }
+}
     }//GEN-LAST:event_jButton1ActionPerformed
 private boolean validarCamposUsuario() {
     if (jTextField1.getText().trim().isEmpty() ||
         jTextField2.getText().trim().isEmpty() ||
         jTextField3.getText().trim().isEmpty() ||
-        (Mode.equals("INS") && jTextField4.getText().length() == 0)) {
+        jTextField4.getText().trim().isEmpty() ||
+        (Mode.equals("INS") && jPasswordField1.getPassword().length == 0)) {
         
         JOptionPane.showMessageDialog(this, 
             "Todos los campos obligatorios deben estar completos.", 
@@ -347,11 +334,11 @@ private boolean validarCamposUsuario() {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JPasswordField jPasswordField1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
     private javax.swing.JTextField jTextField6;
     private javax.swing.JTextField jTextField7;
     // End of variables declaration//GEN-END:variables

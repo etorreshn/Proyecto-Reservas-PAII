@@ -4,6 +4,8 @@
  */
 package view;
 import java.sql.SQLException;  // ¡Este import es obligatorio!
+import javax.swing.JOptionPane;
+import view.JFMenu; 
 /**
  *
  * @author Edwin
@@ -16,7 +18,15 @@ public class JFMenu extends javax.swing.JFrame {
     public JFMenu() {
         initComponents();
         setLocationRelativeTo(null);
+        this.setVisible(false);  // Oculta el menú inicialmente
+    
+    // Mostrar el login primero
+    JFLogin login = new JFLogin(this, true);
+   // JFLogin login = new JFLogin(this, true);
+    login.setVisible(true);
+
     }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -221,6 +231,19 @@ public class JFMenu extends javax.swing.JFrame {
         });
     }
 
+    public void notificarLogin(boolean exito) {
+    if (exito) {
+        // Login exitoso: mostrar menú principal
+        this.setVisible(true);  // Muestra el JFMenu
+        // Aquí puedes cargar datos del usuario si es necesario
+    } else {
+        // Login fallido: cerrar aplicación
+        JOptionPane.showMessageDialog(this, 
+            "No se pudo autenticar. La aplicación se cerrará.",
+            "Error", JOptionPane.ERROR_MESSAGE);
+        System.exit(0);
+    }
+}
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;

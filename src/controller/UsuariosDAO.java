@@ -30,7 +30,7 @@ public class UsuariosDAO {
                 usuario.setContrasena(rs.getString("contrasena"));
                 usuario.setId_Rol(rs.getInt("id_rol"));
                 usuario.setActivo(rs.getInt("activo"));
-               // usuario.setSalt(rs.getString("salt"));
+                usuario.setSalt(rs.getString("salt")); // Descomentar esta línea
                 
                 lista.add(usuario);
             }
@@ -40,40 +40,37 @@ public class UsuariosDAO {
         return lista;
     }
     
-    public boolean insertar(UsuariosDTO usuario) {
-        String sql = "INSERT INTO usuarios (usuario, nombre, email, contrasena, id_rol, activo, salt) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        
-        try (Connection con = ConexionBD.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
-            String salt = PasswordUtils.generateSalt();
-            String contrasenaHash = PasswordUtils.hashPassword(usuario.getContrasena(), salt);
-            
-            ps.setString(1, usuario.getUsuario());
-            ps.setString(2, usuario.getNombre());
-            ps.setString(3, usuario.getEmail());
-            ps.setString(4, contrasenaHash);
-            ps.setInt(5, usuario.getId_Rol());
-            ps.setInt(6, usuario.getActivo());
-            System.err.println("Valor de activo " + usuario.getActivo());
-            ps.setString(7, salt);
-            
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.err.println("Error en insertar(): " + e.getMessage());
-            return false;
-        }
-    }
+public boolean insertar(UsuariosDTO usuario, char[] passwordChars) {
+    String sql = "INSERT INTO usuarios (usuario, nombre, email, contrasena, id_rol, activo, salt) VALUES (?, ?, ?, ?, ?, ?, ?)";
     
-public boolean actualizar(UsuariosDTO usuario) {
-    // Validar campo activo
+    try (Connection con = ConexionBD.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+        
+        String salt = PasswordUtils.generateSalt();
+        String contrasenaHash = PasswordUtils.hashPassword(passwordChars, salt);
+        
+        ps.setString(1, usuario.getUsuario());
+        ps.setString(2, usuario.getNombre());
+        ps.setString(3, usuario.getEmail());
+        ps.setString(4, contrasenaHash);
+        ps.setInt(5, usuario.getId_Rol());
+        ps.setInt(6, usuario.getActivo());
+        ps.setString(7, salt);
+        
+        return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+        System.err.println("Error en insertar(): " + e.getMessage());
+        return false;
+    }
+}
+    
+public boolean actualizar(UsuariosDTO usuario, char[] passwordChars) {
     if(usuario.getActivo() != 0 && usuario.getActivo() != 1) {
         System.err.println("Valor inválido para activo: " + usuario.getActivo());
         return false;
     }
 
-    // Consulta que actualiza con o sin contraseña
-    boolean actualizarContrasena = (usuario.getContrasena() != null && !usuario.getContrasena().isEmpty());
+    boolean actualizarContrasena = (passwordChars != null && passwordChars.length > 0);
     
     String sql = "UPDATE usuarios SET usuario = ?, nombre = ?, email = ?, " +
                 (actualizarContrasena ? "contrasena = ?, salt = ?, " : "") +
@@ -82,12 +79,6 @@ public boolean actualizar(UsuariosDTO usuario) {
     try (Connection con = ConexionBD.getConnection();
          PreparedStatement ps = con.prepareStatement(sql)) {
         
-        System.out.println("DEBUG - Valores para actualizar:");
-        System.out.println("ID: " + usuario.getId());
-        System.out.println("Usuario: " + usuario.getUsuario());
-        System.out.println("Activo: " + usuario.getActivo());
-        System.out.println("Actualizar contraseña?: " + actualizarContrasena);
-        
         int paramIndex = 1;
         ps.setString(paramIndex++, usuario.getUsuario());
         ps.setString(paramIndex++, usuario.getNombre());
@@ -95,28 +86,21 @@ public boolean actualizar(UsuariosDTO usuario) {
         
         if (actualizarContrasena) {
             String salt = PasswordUtils.generateSalt();
-            String contrasenaHash = PasswordUtils.hashPassword(usuario.getContrasena(), salt);
+            String contrasenaHash = PasswordUtils.hashPassword(passwordChars, salt);
             ps.setString(paramIndex++, contrasenaHash);
             ps.setString(paramIndex++, salt);
-            
-            System.out.println("DEBUG - Nueva contraseña hash: " + contrasenaHash);
-            System.out.println("DEBUG - Nuevo salt: " + salt);
         }
         
-        ps.setInt(paramIndex++, usuario.getId_Rol());  // Asegúrate que el getter se llame exactamente así
+        ps.setInt(paramIndex++, usuario.getId_Rol());
         ps.setInt(paramIndex++, usuario.getActivo());
         ps.setInt(paramIndex, usuario.getId());
         
-        int filasActualizadas = ps.executeUpdate();
-        System.out.println("DEBUG - Filas afectadas: " + filasActualizadas);
-        
-        return filasActualizadas > 0;
+        return ps.executeUpdate() > 0;
     } catch (SQLException e) {
         System.err.println("Error en actualizar(): " + e.getMessage());
-        e.printStackTrace();  // Para ver el stack trace completo
         return false;
     }
 }
     
-    // ... (métodos listar y eliminar se mantienen igual)
+    // ... (otros métodos se mantienen igual)
 }
