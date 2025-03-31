@@ -111,7 +111,15 @@ public class roles extends javax.swing.JDialog {
             new String [] {
                 "Id", "Nombre", "Descripción", "Activo"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(jTable1);
 
         jButton1.setText("Nuevo");

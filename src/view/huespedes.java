@@ -74,7 +74,15 @@ public class huespedes extends javax.swing.JDialog {
             new String [] {
                 "Id", "Nombre", "Email", "Telefono", "Activo"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jTable1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jTable1.setShowGrid(false);
         jScrollPane1.setViewportView(jTable1);

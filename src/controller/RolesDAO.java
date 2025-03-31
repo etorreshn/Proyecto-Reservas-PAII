@@ -26,7 +26,7 @@ public class RolesDAO implements BDOperations {
                     rs.getInt("id"),
                     rs.getString("nombre"),
                     rs.getString("descripcion"),
-                    rs.getInt("activo") // YA ES int
+                    rs.getInt("activo")
                 );
                 lista.add(rol);
             }
@@ -51,7 +51,7 @@ public class RolesDAO implements BDOperations {
                         rs.getInt("id"),
                         rs.getString("nombre"),
                         rs.getString("descripcion"),
-                        rs.getInt("activo") // YA ES int
+                        rs.getInt("activo")
                     );
                 }
             }
@@ -72,7 +72,7 @@ public class RolesDAO implements BDOperations {
                 
                 ps.setString(1, rol.getNombre());
                 ps.setString(2, rol.getDescripcion());
-                ps.setInt(3, rol.getActivo()); // YA ES int
+                ps.setInt(3, rol.getActivo());
                 
                 return ps.executeUpdate() > 0;
                 
@@ -94,10 +94,16 @@ public class RolesDAO implements BDOperations {
                 
                 ps.setString(1, rol.getNombre());
                 ps.setString(2, rol.getDescripcion());
-                ps.setInt(3, rol.getActivo()); // YA ES int
+                ps.setInt(3, rol.getActivo());
                 ps.setInt(4, rol.getId());
                 
-                return ps.executeUpdate() > 0;
+                boolean updated = ps.executeUpdate() > 0;
+                
+                if (updated) {
+                    ejecutarProcedimientoActualizarUsuarios(rol.getId());
+                }
+                
+                return updated;
                 
             } catch (SQLException e) {
                 System.err.println("Error al actualizar el rol: " + e.getMessage());
@@ -120,5 +126,19 @@ public class RolesDAO implements BDOperations {
             System.err.println("Error al eliminar el rol: " + e.getMessage());
         }
         return false;
+    }
+
+    private void ejecutarProcedimientoActualizarUsuarios(int idRol) {
+        String sql = "{ CALL actualizarActivoUsuariosPorRol(?) }";
+        
+        try (Connection con = ConexionBD.getConnection();
+             CallableStatement cs = con.prepareCall(sql)) {
+            
+            cs.setInt(1, idRol);
+            cs.execute();
+            
+        } catch (SQLException e) {
+            System.err.println("Error al ejecutar el procedimiento almacenado: " + e.getMessage());
+        }
     }
 }

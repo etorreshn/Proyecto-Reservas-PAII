@@ -70,7 +70,15 @@ public class reservas extends javax.swing.JDialog {
             new String [] {
                 "Id_Reserva", "Id Huesped", "Id Habitacion", "Fecha Inicio", "Fecha Final", "Activo"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jTable1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane1.setViewportView(jTable1);
 
