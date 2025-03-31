@@ -199,6 +199,9 @@ public class JFLogin extends javax.swing.JDialog  {
                     "Demasiados intentos fallidos. Usuario bloqueado.",
                     "Error", JOptionPane.ERROR_MESSAGE);
                 dispose();
+                
+                parent.notificarLogin(false);
+
             } else {
                 JOptionPane.showMessageDialog(this,
                     "Credenciales incorrectas. Intentos: " + intentos + "/3",

@@ -25,16 +25,14 @@ public class roles extends javax.swing.JDialog {
     /**
      * Creates new form Roles
      */
-    private DefaultTableModel modeloTabla;
-    private RolesDAO rolesDAO = new RolesDAO();
-    private JFMenu parent;
-    private RolesDAO dao = new RolesDAO();
+    private final DefaultTableModel modeloTabla;
+    private final  RolesDAO rolesDAO = new RolesDAO();
+    private final  RolesDAO dao = new RolesDAO();
     
     public roles(JFMenu parent, boolean modal) {
         super(parent, modal); 
         initComponents();
         setLocationRelativeTo(null);
-        this.parent = parent;
         modeloTabla = (DefaultTableModel) jTable1.getModel();
 
         // Configurar CheckBox para columna Activo (índice 3)s
