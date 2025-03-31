@@ -22,7 +22,6 @@ public class JFMenu extends javax.swing.JFrame {
     
     // Mostrar el login primero
     JFLogin login = new JFLogin(this, true);
-   // JFLogin login = new JFLogin(this, true);
     login.setVisible(true);
 
     }

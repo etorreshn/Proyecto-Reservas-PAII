@@ -5,8 +5,7 @@
 package dto;
 
 /**
- *
- * @author Edwin
+ * Clase DTO para representar roles del sistema
  */
 public class RolesDTO {
     private int id;
@@ -14,6 +13,7 @@ public class RolesDTO {
     private String descripcion;
     private int activo;
 
+    // Constructores
     public RolesDTO() {}
 
     public RolesDTO(int id, String nombre, String descripcion, int activo) {
@@ -23,7 +23,7 @@ public class RolesDTO {
         this.activo = activo;
     }
 
-
+    // Getters y Setters
     public int getId() {
         return id;
     }
@@ -48,12 +48,22 @@ public class RolesDTO {
         this.descripcion = descripcion;
     }
     
-        public int getActivo() {
-       return activo;
+    public int getActivo() {
+        return activo;
     }
 
-    public void setActivo(int activoq) {
-      this.id = activo;
-   }
+    public void setActivo(int activo) {
+        this.activo = activo;  // Corrección aplicada aquí
+    }
+    
+    // Método toString() recomendado
+    @Override
+    public String toString() {
+        return "RolesDTO{" +
+               "id=" + id +
+               ", nombre='" + nombre + '\'' +
+               ", descripcion='" + descripcion + '\'' +
+               ", activo=" + activo +
+               '}';
+    }
 }
-

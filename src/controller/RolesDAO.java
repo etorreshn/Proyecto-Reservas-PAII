@@ -4,10 +4,6 @@
  */
 package controller;
 
-/**
- *
- * @author Edwin
- */
 import bd.ConexionBD;
 import dto.RolesDTO;
 import java.sql.*;
@@ -30,12 +26,12 @@ public class RolesDAO implements BDOperations {
                     rs.getInt("id"),
                     rs.getString("nombre"),
                     rs.getString("descripcion"),
-                    rs.getInt("activo")
+                    rs.getInt("activo") // YA ES int
                 );
                 lista.add(rol);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error al obtener todos los roles: " + e.getMessage());
         }
         return lista;
     }
@@ -55,12 +51,12 @@ public class RolesDAO implements BDOperations {
                         rs.getInt("id"),
                         rs.getString("nombre"),
                         rs.getString("descripcion"),
-                        rs.getInt("activo")
+                        rs.getInt("activo") // YA ES int
                     );
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error al obtener el rol por ID: " + e.getMessage());
         }
         return rol;
     }
@@ -69,17 +65,19 @@ public class RolesDAO implements BDOperations {
     public boolean insert(Object object) {
         if (object instanceof RolesDTO) {
             RolesDTO rol = (RolesDTO) object;
-            String sql = "INSERT INTO roles (nombre, descripcion) VALUES (?, ?)";
+            String sql = "INSERT INTO roles (nombre, descripcion, activo) VALUES (?, ?, ?)";
 
             try (Connection con = ConexionBD.getConnection();
                  PreparedStatement ps = con.prepareStatement(sql)) {
                 
                 ps.setString(1, rol.getNombre());
                 ps.setString(2, rol.getDescripcion());
+                ps.setInt(3, rol.getActivo()); // YA ES int
+                
                 return ps.executeUpdate() > 0;
                 
             } catch (SQLException e) {
-                e.printStackTrace();
+                System.err.println("Error al insertar el rol: " + e.getMessage());
             }
         }
         return false;
@@ -89,18 +87,20 @@ public class RolesDAO implements BDOperations {
     public boolean update(Object object) {
         if (object instanceof RolesDTO) {
             RolesDTO rol = (RolesDTO) object;
-            String sql = "UPDATE roles SET nombre = ?, descripcion = ? WHERE id = ?";
+            String sql = "UPDATE roles SET nombre = ?, descripcion = ?, activo = ? WHERE id = ?";
 
             try (Connection con = ConexionBD.getConnection();
                  PreparedStatement ps = con.prepareStatement(sql)) {
                 
                 ps.setString(1, rol.getNombre());
                 ps.setString(2, rol.getDescripcion());
-                ps.setInt(3, rol.getId());
+                ps.setInt(3, rol.getActivo()); // YA ES int
+                ps.setInt(4, rol.getId());
+                
                 return ps.executeUpdate() > 0;
                 
             } catch (SQLException e) {
-                e.printStackTrace();
+                System.err.println("Error al actualizar el rol: " + e.getMessage());
             }
         }
         return false;
@@ -117,12 +117,8 @@ public class RolesDAO implements BDOperations {
             return ps.executeUpdate() > 0;
             
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error al eliminar el rol: " + e.getMessage());
         }
         return false;
     }
-
-
-    
-    
 }

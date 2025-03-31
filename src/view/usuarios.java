@@ -6,11 +6,22 @@ package view;
 
 import controller.UsuariosDAO;
 import dto.UsuariosDTO;
+import java.awt.Component;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import model.Usuarios;
+
+
+import javax.swing.JCheckBox;
+import javax.swing.JTable;
+import javax.swing.table.TableCellRenderer;
 
 /**
  *
@@ -31,11 +42,74 @@ public class usuarios extends javax.swing.JDialog {
         initComponents();
         setLocationRelativeTo(null);
         this.parent = parent;
+
+        // Configuración de tabla
         modeloTabla = (DefaultTableModel) jTable1.getModel();
-        cargarDatos();
+        configurarTabla();  // Ahora incluye toda la configuración
+
+        refrescarTabla();
     }
 
     
+private class CheckBoxRenderer extends JCheckBox implements TableCellRenderer {
+    public CheckBoxRenderer() {
+        setHorizontalAlignment(JCheckBox.CENTER);
+        setOpaque(true);
+    }
+
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value,
+                                                 boolean isSelected, boolean hasFocus,
+                                                 int row, int column) {
+        if (value instanceof Integer) {
+            setSelected((Integer) value == 1);
+        }
+        
+        // Cambiar color de fondo para selección
+        if (isSelected) {
+            setBackground(table.getSelectionBackground());
+            setForeground(table.getSelectionForeground());
+        } else {
+            setBackground(table.getBackground());
+            setForeground(table.getForeground());
+        }
+        
+        return this;
+    }
+}
+
+private class CheckBoxEditor extends DefaultCellEditor {
+    private final JCheckBox checkBox = new JCheckBox();
+
+    public CheckBoxEditor(JCheckBox checkBox) {
+        super(checkBox);
+        this.checkBox.setHorizontalAlignment(JCheckBox.CENTER);
+    }
+
+    @Override
+    public Component getTableCellEditorComponent(JTable table, Object value,
+                                              boolean isSelected, int row, int column) {
+        if (value instanceof Integer) {
+            checkBox.setSelected((Integer) value == 1);
+        }
+        return checkBox;
+    }
+
+    @Override
+    public Object getCellEditorValue() {
+        return checkBox.isSelected() ? 1 : 0;
+    }
+}
+
+private void configurarTabla() {
+    // Ocultar contraseña
+    jTable1.getColumnModel().getColumn(4).setMinWidth(0);
+    jTable1.getColumnModel().getColumn(4).setMaxWidth(0);
+    
+    // Configurar CheckBox para Activo
+    jTable1.getColumnModel().getColumn(6).setCellRenderer(new CheckBoxRenderer());
+    jTable1.getColumnModel().getColumn(6).setCellEditor(new CheckBoxEditor(new JCheckBox()));
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -54,6 +128,7 @@ public class usuarios extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Usuarios");
+        setResizable(false);
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -83,6 +158,11 @@ public class usuarios extends javax.swing.JDialog {
         });
 
         jButton3.setText("Eliminar");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -91,7 +171,7 @@ public class usuarios extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 772, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 777, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jButton1)
                         .addGap(18, 18, 18)
@@ -123,66 +203,102 @@ public class usuarios extends javax.swing.JDialog {
         // Crear la ventana para la operación de insertar (INS)
         OpUsuarios oOpUsuarios = new OpUsuarios(this, true, "INS", oUsuariosDTO);
         oOpUsuarios.setVisible(true);  // Mostrar la ventana de operación
+        oOpUsuarios.addWindowListener(new WindowAdapter() {
+    @Override
+    public void windowClosed(WindowEvent e) {
+        refrescarTabla();
+    }
+});
+        
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
+            // TODO add your handling code here:
     int fila = jTable1.getSelectedRow();
-    
+
     if (fila != -1) {
         try {
-            // Obtener valores de la tabla - ASEGURAR LOS ÍNDICES CORRECTOS
-             //modeloTabla = jTable1.getModel();
-            
-            int idUsuario = Integer.parseInt(modeloTabla.getValueAt(fila, 0).toString());
+            // 1. Obtener el nombre de usuario de la tabla
             String usuario = modeloTabla.getValueAt(fila, 1).toString();
-            String nombre = modeloTabla.getValueAt(fila, 2).toString();
-            String email = modeloTabla.getValueAt(fila, 3).toString();
-            
-            // La contraseña debe manejarse como String - NO PARSEAR A NÚMERO
-            String contrasenaHash = modeloTabla.getValueAt(fila, 4).toString();
-            
-            // Campos numéricos
-            int idRol = Integer.parseInt(modeloTabla.getValueAt(fila, 5).toString());
-            int activo = Integer.parseInt(modeloTabla.getValueAt(fila, 6).toString());
 
-            // Validar campo activo
-            if(activo != 0 && activo != 1) {
+            // 2. Obtener TODOS los datos desde la BD (evita inconsistencia)
+            UsuariosDTO usuarioDTO = usuariosDAO.getByUsuario(usuario);
+
+            if (usuarioDTO == null) {
+                JOptionPane.showMessageDialog(this, 
+                    "Usuario no encontrado en la base de datos", 
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // 3. Validar campo activo (opcional, si es editable en la tabla)
+            Object valor = modeloTabla.getValueAt(fila, 6);
+            int activo = (valor instanceof Integer) ? (int) valor : 0; // Valor por defecto
+            if (activo != 0 && activo != 1) {
                 JOptionPane.showMessageDialog(this, 
                     "El valor de 'activo' debe ser 0 o 1", 
                     "Error en datos", 
                     JOptionPane.ERROR_MESSAGE);
                 return;
             }
+            usuarioDTO.setActivo(activo); // Actualizar solo si es válido
 
-            // Crear y configurar el DTO
-            UsuariosDTO usuarioDTO = new UsuariosDTO(); 
-            usuarioDTO.setId(idUsuario); 
-            usuarioDTO.setUsuario(usuario);
-            usuarioDTO.setNombre(nombre);
-            usuarioDTO.setEmail(email);
-            usuarioDTO.setContrasena(contrasenaHash); // Asignar el hash directamente
-            usuarioDTO.setId_Rol(idRol);
-            usuarioDTO.setActivo(activo); 
-
-            // Crear y mostrar ventana de edición
+            // 4. Crear y mostrar ventana de edición
             OpUsuarios oOpUsuarios = new OpUsuarios(this, true, "UPD", usuarioDTO);
             oOpUsuarios.setVisible(true);
-            
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, 
-                "Error en los datos numéricos (ID, Rol o Activo). Verifique los tipos de datos.", 
-                "Error de formato", 
-                JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+            oOpUsuarios.addWindowListener(new WindowAdapter() {
+        @Override
+        public void windowClosed(WindowEvent e) {
+            refrescarTabla();
         }
-    } else {
+    });
+        
+    } catch (NumberFormatException e) {
         JOptionPane.showMessageDialog(this, 
-            "Debe seleccionar un usuario para editar", 
-            "ERROR", 
+            "Error en los datos numéricos (ID, Rol o Activo). Verifique los tipos.", 
+            "Error de formato", 
+            JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, 
+            "Error al acceder a la base de datos: " + e.getMessage(), 
+            "Error crítico", 
             JOptionPane.ERROR_MESSAGE);
     }
+} else {
+    JOptionPane.showMessageDialog(this, 
+        "Debe seleccionar un usuario para editar", 
+        "ERROR", 
+        JOptionPane.ERROR_MESSAGE);
+}
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+            int fila = jTable1.getSelectedRow();  // Obtener la fila seleccionada
+    if (fila != -1) {
+        int idUsuario = Integer.parseInt(jTable1.getValueAt(fila, 0).toString());  // Obtener el ID del usuario desde la tabla
+        int opcion = JOptionPane.showConfirmDialog(this, "¿Estás seguro de eliminar este usuario?", "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
+        
+        if (opcion == JOptionPane.YES_OPTION) {
+            boolean eliminado = usuariosDAO.delete(idUsuario);  // Llamada al método delete() del DAO para eliminar el usuario
+            if (eliminado) {
+                try {
+                    cargarDatos();  // Actualizar la tabla después de la eliminación
+                } catch (SQLException ex) {
+                    Logger.getLogger(usuarios.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                JOptionPane.showMessageDialog(this, "Usuario eliminado exitosamente.");
+
+            } else {
+                JOptionPane.showMessageDialog(this, "Error al eliminar el usuario.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    } else {
+        JOptionPane.showMessageDialog(this, "Debe seleccionar un usuario", "ERROR", JOptionPane.ERROR_MESSAGE);
+    }
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -219,38 +335,45 @@ public class usuarios extends javax.swing.JDialog {
             }
         });
     }
-    private void cargarDatos() throws SQLException {
+
+    public void cargarDatos() throws SQLException  {
         modeloTabla.setRowCount(0);
-    
-        // Obtener la lista de objetos desde el DAO
-        List<Object> usuarios = usuariosDAO.getAll();
-        
-    for(Object usuarioObj : usuarios) {
-        if(usuarioObj instanceof UsuariosDTO) {
-            UsuariosDTO usuarioDTO = (UsuariosDTO) usuarioObj;
+        List<UsuariosDTO> usuarios = usuariosDAO.getAll();
+
+        for(UsuariosDTO usuario : usuarios) {
             modeloTabla.addRow(new Object[]{
-                usuarioDTO.getId(), 
-                usuarioDTO.getUsuario(), 
-                usuarioDTO.getNombre(),    
-                usuarioDTO.getEmail(),
-                usuarioDTO.getContrasena(), // Asegúrate que el nombre del método coincide
-                usuarioDTO.getId_Rol() ,     // con tu clase UsuariosDTO
-                usuarioDTO.getActivo()
-            });
-        } else if(usuarioObj instanceof Usuarios) {
-            Usuarios usuario = (Usuarios) usuarioObj;
-            modeloTabla.addRow(new Object[]{
-                usuario.getId(), 
+                usuario.getId(),
                 usuario.getUsuario(),
-                usuario.getNombre(), 
-                usuario.getEmail(),     // Asumiendo que Usuarios tiene estos campos
-                usuario.getContrasena(),
-                usuario.getRol(),
-                usuario.getActivo()
+                usuario.getNombre(),
+                usuario.getEmail(),
+                "********",
+                usuario.getId_Rol(),
+                usuario.getActivo() // Envía directamente 0 o 1
             });
         }
+        if (modeloTabla.getRowCount() > 0) {
+            jTable1.setRowSelectionInterval(0, 0); 
+            jTable1.scrollRectToVisible(jTable1.getCellRect(0, 0, true)); 
     }
     }
+
+// Nuevo método para refresco seguro
+public void refrescarTabla() {
+    try {
+        cargarDatos();
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, 
+            "Error al actualizar datos: " + e.getMessage(), 
+            "Error", 
+            JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+private void limpiarPassword(char[] password) {
+    if (password != null) {
+        Arrays.fill(password, '\0');
+    }
+}
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;

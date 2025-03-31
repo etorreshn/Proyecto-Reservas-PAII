@@ -25,28 +25,24 @@ public class OpUsuarios extends javax.swing.JDialog {
 
     /** Creates new form OpUsuarios */
     public OpUsuarios(usuarios parent, boolean modal, String mode, UsuariosDTO dto) {
-        super(parent, modal); 
-        initComponents();
-        this.Mode = mode; // Use the constructor parameter "mode"
-        this.id = id;
-        this.dto =  dto;
-        this.dao = new UsuariosDAO();
-        setLocationRelativeTo(null);
-        this.parent = parent;  
-        
-            if("UPD".equals(mode)) {
-        // Llenar los campos con los datos del DTO
+    super(parent, modal); 
+    initComponents();
+    this.Mode = mode;
+    this.id = id;
+    this.dto = dto;
+    this.dao = new UsuariosDAO();
+    setLocationRelativeTo(null);
+    this.parent = parent;  
+    
+    if("UPD".equals(mode)) {
         jTextField1.setText(String.valueOf(dto.getId()));
         jTextField2.setText(dto.getUsuario());
         jTextField3.setText(dto.getNombre());
         jTextField4.setText(dto.getEmail());
-        
-        // Para la contraseña, puedes usar un placeholder
-        jPasswordField1.setText(""); // O mostrar "********"
+        jPasswordField1.setText("");
         jPasswordField1.putClientProperty("originalHash", dto.getContrasena());
-        
         jTextField6.setText(String.valueOf(dto.getId_Rol()));
-        jTextField7.setText(String.valueOf(dto.getActivo()));
+        jCheckBox1.setSelected(dto.getActivo() == 1); // Cambio clave aquí
     }
     }          
 
@@ -64,7 +60,6 @@ public class OpUsuarios extends javax.swing.JDialog {
         jTextField3 = new javax.swing.JTextField();
         jTextField4 = new javax.swing.JTextField();
         jTextField6 = new javax.swing.JTextField();
-        jTextField7 = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -75,8 +70,10 @@ public class OpUsuarios extends javax.swing.JDialog {
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jPasswordField1 = new javax.swing.JPasswordField();
+        jCheckBox1 = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setResizable(false);
 
         jTextField1.setText("0");
 
@@ -87,8 +84,6 @@ public class OpUsuarios extends javax.swing.JDialog {
         jTextField4.setText("jTextField4");
 
         jTextField6.setText("jTextField6");
-
-        jTextField7.setText("jTextField7");
 
         jLabel1.setText("id");
 
@@ -112,6 +107,11 @@ public class OpUsuarios extends javax.swing.JDialog {
         });
 
         jButton2.setText("Cancelar");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jPasswordField1.setText("jPasswordField1");
 
@@ -138,8 +138,8 @@ public class OpUsuarios extends javax.swing.JDialog {
                             .addComponent(jTextField3)
                             .addComponent(jTextField4)
                             .addComponent(jTextField6)
-                            .addComponent(jTextField7)
-                            .addComponent(jPasswordField1)))
+                            .addComponent(jPasswordField1)
+                            .addComponent(jCheckBox1)))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jButton1)
@@ -176,13 +176,13 @@ public class OpUsuarios extends javax.swing.JDialog {
                     .addComponent(jLabel6))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel7))
+                    .addComponent(jLabel7)
+                    .addComponent(jCheckBox1))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jButton2))
-                .addContainerGap(14, Short.MAX_VALUE))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
 
         pack();
@@ -190,101 +190,51 @@ public class OpUsuarios extends javax.swing.JDialog {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 // TODO add your handling code here:
-if (Mode.equals("INS")) {
-    // Validación de todos los campos
-    boolean validacion = validarCamposUsuario();
-    if (validacion) {
-        UsuariosDTO usuarioDTO = new UsuariosDTO();
-        usuarioDTO.setId(Integer.parseInt(jTextField1.getText()));
+    try {
+        if (!validarCamposUsuario()) return;
+
+        UsuariosDTO usuarioDTO = "UPD".equals(Mode) ? this.dto : new UsuariosDTO();
         usuarioDTO.setUsuario(jTextField2.getText());
         usuarioDTO.setNombre(jTextField3.getText());
         usuarioDTO.setEmail(jTextField4.getText());
         
-        // Obtener contraseña del JPasswordField
-        char[] passwordChars = jPasswordField1.getPassword();
-        try {
-            usuarioDTO.setId_Rol(Integer.parseInt(jTextField6.getText()));
-            int valorActivo = Integer.parseInt(jTextField7.getText());
-            if(valorActivo != 0 && valorActivo != 1) {
-                throw new IllegalArgumentException("Activo debe ser 0 o 1");
-            }
-            usuarioDTO.setActivo(valorActivo);
-            
-            // Cambio importante: pasar el passwordChars directamente al DAO
-            boolean operacion = dao.insertar(usuarioDTO, passwordChars);
-            
-            if (operacion) {
-                JOptionPane.showMessageDialog(this, "Usuario insertado exitosamente.", 
-                    "ÉXITO", JOptionPane.INFORMATION_MESSAGE);
-                this.dispose();
-            } else {
-                JOptionPane.showMessageDialog(this, "Error al insertar el usuario.", 
-                    "ERROR", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Los campos 'Rol' y 'Activo' deben ser números válidos.", 
-                "ERROR DE VALIDACIÓN", JOptionPane.ERROR_MESSAGE);
-        } catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), 
-                "ERROR DE VALIDACIÓN", JOptionPane.ERROR_MESSAGE);
-        } finally {
-            Arrays.fill(passwordChars, '\0');
-        }
-    }
-}
-else if (Mode.equals("UPD")) {
-    // Validación de todos los campos
-    boolean validacion = validarCamposUsuario();
-    if (validacion) {
-        UsuariosDTO usuarioDTO = new UsuariosDTO();
-        usuarioDTO.setId(Integer.parseInt(jTextField1.getText()));
-        usuarioDTO.setUsuario(jTextField2.getText());
-        usuarioDTO.setNombre(jTextField3.getText());
-        usuarioDTO.setEmail(jTextField4.getText());
+        // Manejo del CheckBox (cambio importante)
+        int activo = jCheckBox1.isSelected() ? 1 : 0;
+        usuarioDTO.setActivo(activo);
         
-        // Obtener contraseña del JPasswordField
-        char[] passwordChars = jPasswordField1.getPassword();
-        try {
-            usuarioDTO.setId_Rol(Integer.parseInt(jTextField6.getText()));
-            int valorActivo = Integer.parseInt(jTextField7.getText());
-            if(valorActivo != 0 && valorActivo != 1) {
-                throw new IllegalArgumentException("Activo debe ser 0 o 1");
-            }
-            usuarioDTO.setActivo(valorActivo);
-            
-            // Cambio importante: pasar el passwordChars directamente al DAO
-            boolean operacion = dao.actualizar(usuarioDTO, passwordChars);
-            
-            if (operacion) {
-                JOptionPane.showMessageDialog(this, "Usuario actualizado exitosamente.", 
-                    "ÉXITO", JOptionPane.INFORMATION_MESSAGE);
-                this.dispose();
-            } else {
-                JOptionPane.showMessageDialog(this, "Error al actualizar el usuario.", 
-                    "ERROR", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Los campos 'Rol' y 'Activo' deben ser números válidos.", 
-                "ERROR DE VALIDACIÓN", JOptionPane.ERROR_MESSAGE);
-        } catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), 
-                "ERROR DE VALIDACIÓN", JOptionPane.ERROR_MESSAGE);
-        } finally {
-            Arrays.fill(passwordChars, '\0');
+        // Validación de rol
+        usuarioDTO.setId_Rol(Integer.parseInt(jTextField6.getText()));
+
+        char[] password = jPasswordField1.getPassword();
+        boolean success = "INS".equals(Mode) 
+            ? dao.insertar(usuarioDTO, password)
+            : dao.actualizar(usuarioDTO, password.length > 0 ? password : null);
+
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Operación exitosa");
+            parent.refrescarTabla();
+            this.dispose();
         }
+        
+    } catch(NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "El rol debe ser un número válido");
+    } catch(Exception e) {
+        JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+    } finally {
+        Arrays.fill(jPasswordField1.getPassword(), '\0');
     }
-}
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        this.dispose();
+    }//GEN-LAST:event_jButton2ActionPerformed
 private boolean validarCamposUsuario() {
-    if (jTextField1.getText().trim().isEmpty() ||
-        jTextField2.getText().trim().isEmpty() ||
-        jTextField3.getText().trim().isEmpty() ||
-        jTextField4.getText().trim().isEmpty() ||
-        (Mode.equals("INS") && jPasswordField1.getPassword().length == 0)) {
-        
+    if (jTextField2.getText().trim().isEmpty() || 
+        jTextField3.getText().trim().isEmpty()) {
         JOptionPane.showMessageDialog(this, 
-            "Todos los campos obligatorios deben estar completos.", 
-            "ERROR DE VALIDACIÓN", JOptionPane.ERROR_MESSAGE);
+            "Usuario y Nombre son obligatorios", 
+            "Error", JOptionPane.ERROR_MESSAGE);
         return false;
     }
     return true;
@@ -327,6 +277,7 @@ private boolean validarCamposUsuario() {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -340,7 +291,6 @@ private boolean validarCamposUsuario() {
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
     private javax.swing.JTextField jTextField6;
-    private javax.swing.JTextField jTextField7;
     // End of variables declaration//GEN-END:variables
 
 }

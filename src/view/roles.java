@@ -6,9 +6,14 @@ package view;
 
 import controller.RolesDAO;
 import dto.RolesDTO;
-import java.util.ArrayList;
+import java.awt.Component;
 import java.util.List;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JCheckBox;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import model.Roles;
 
 /**
@@ -31,12 +36,53 @@ public class roles extends javax.swing.JDialog {
         setLocationRelativeTo(null);
         this.parent = parent;
         modeloTabla = (DefaultTableModel) jTable1.getModel();
+
+        // Configurar CheckBox para columna Activo (índice 3)
+        jTable1.getColumnModel().getColumn(3).setCellRenderer(new CheckBoxRenderer());
+        jTable1.getColumnModel().getColumn(3).setCellEditor(new CheckBoxEditor(new JCheckBox()));
+
         cargarDatos();
     }
 
-        public void refrescarDatos(){
-        cargarDatos();
+    // Renderizador del CheckBox
+    private class CheckBoxRenderer extends JCheckBox implements TableCellRenderer {
+        public CheckBoxRenderer() {
+            setHorizontalAlignment(JCheckBox.CENTER);
+            setOpaque(true);
+        }
+
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value,
+            boolean isSelected, boolean hasFocus, int row, int column) {
+        if (value instanceof Integer) {
+            setSelected((Integer) value == 1);
+        }
+        setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+        return this;
     }
+}
+
+    // Editor del CheckBox
+    private class CheckBoxEditor extends DefaultCellEditor {
+        private final JCheckBox checkBox = new JCheckBox();
+
+        public CheckBoxEditor(JCheckBox checkBox) {
+            super(checkBox);
+            this.checkBox.setHorizontalAlignment(JCheckBox.CENTER);
+        }
+
+    @Override
+    public Component getTableCellEditorComponent(JTable table, Object value,
+            boolean isSelected, int row, int column) {
+        checkBox.setSelected((value instanceof Integer) && ((Integer) value == 1));
+        return checkBox;
+    }
+
+    @Override
+    public Object getCellEditorValue() {
+        return checkBox.isSelected() ? 1 : 0;
+    }
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -55,6 +101,7 @@ public class roles extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Roles");
+        setResizable(false);
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -70,10 +117,25 @@ public class roles extends javax.swing.JDialog {
         jScrollPane1.setViewportView(jTable1);
 
         jButton1.setText("Nuevo");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jButton2.setText("Editar");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setText("Eliminar");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -106,6 +168,102 @@ public class roles extends javax.swing.JDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        RolesDTO oRolesDTO = new RolesDTO();
+        // Crear la ventana para la operación de insertar (INS)
+        OpRoles oOpRoles = new OpRoles(this, true, "INS", oRolesDTO);
+        oOpRoles.setVisible(true);  // Mostrar la ventana de operación
+        
+        
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+    int fila = jTable1.getSelectedRow();
+
+    if (fila != -1) {
+        try {
+            // 1. Obtener el ID del rol de la tabla (columna 0)
+            int idRol = Integer.parseInt(modeloTabla.getValueAt(fila, 0).toString());
+
+            // 2. Obtener TODOS los datos desde la BD usando el ID
+            RolesDTO rolDTO = (RolesDTO) dao.getById(idRol); // Usamos el DAO que ya está declarado
+
+            if (rolDTO == null) {
+                JOptionPane.showMessageDialog(this, 
+                    "Rol no encontrado en la base de datos", 
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // 3. Validar campo activo (si es editable en la tabla)
+            Object valorActivo = modeloTabla.getValueAt(fila, 3); // Columna Activo
+            int activo = (valorActivo instanceof Integer) ? (int) valorActivo : 0;
+            if (activo != 0 && activo != 1) {
+                JOptionPane.showMessageDialog(this, 
+                    "El valor de 'activo' debe ser 0 o 1", 
+                    "Error en datos", 
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            rolDTO.setActivo(activo);
+
+            // 4. Crear y mostrar ventana de edición
+            OpRoles oOpRoles = new OpRoles(this, true, "UPD", rolDTO);
+            oOpRoles.setVisible(true);
+            
+            // 5. Actualizar la tabla cuando se cierre la ventana de edición
+            oOpRoles.addWindowListener(new java.awt.event.WindowAdapter() {
+                @Override
+                public void windowClosed(java.awt.event.WindowEvent e) {
+                    cargarDatos(); // Actualizar los datos después de editar
+                }
+            });
+            
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, 
+                "Error en el formato del ID del rol", 
+                "Error de formato", 
+                JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, 
+                "Error al acceder a la base de datos: " + e.getMessage(), 
+                "Error crítico", 
+                JOptionPane.ERROR_MESSAGE);
+        }
+    } else {
+        JOptionPane.showMessageDialog(this, 
+            "Debe seleccionar un rol para editar", 
+            "ERROR", 
+            JOptionPane.ERROR_MESSAGE);
+    }
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+            int fila = jTable1.getSelectedRow();  // Obtener la fila seleccionada
+    if (fila != -1) {
+        int idRol = Integer.parseInt(jTable1.getValueAt(fila, 0).toString());  // Obtener el ID del rol desde la tabla
+        int opcion = JOptionPane.showConfirmDialog(this, "¿Estás seguro de eliminar este rol?", "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
+        
+        if (opcion == JOptionPane.YES_OPTION) {
+            boolean eliminado = dao.delete(idRol);  // Llamada al método delete() del DAO para eliminar el rol
+            if (eliminado) {
+                cargarDatos();  // Actualizar la tabla después de la eliminación
+                JOptionPane.showMessageDialog(this, "Rol eliminado exitosamente.");
+                
+            } else {
+                JOptionPane.showMessageDialog(this, "Error al eliminar el rol.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    } else {
+        JOptionPane.showMessageDialog(this, "Debe seleccionar un rol", "ERROR", JOptionPane.ERROR_MESSAGE);
+    }
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -142,35 +300,41 @@ public class roles extends javax.swing.JDialog {
             }
         });
     }
-private void cargarDatos() {
-    modeloTabla.setRowCount(0);
     
-    // Obtener la lista de objetos desde el DAO
-    List<Object> roles = rolesDAO.getAll();
+    public void refrescarDatos() {
+        cargarDatos(); // Simplemente llama al método existente
+    }
     
-    for(Object roles_uncast : roles) {
-        // Verificar el tipo del objeto antes de hacer el casting
-        if(roles_uncast instanceof RolesDTO) {
-            RolesDTO rolDTO = (RolesDTO) roles_uncast;
-            // Convertir el DTO a Model (Roles) si es necesario
-            // O usar directamente los datos del DTO
-            modeloTabla.addRow(new Object[]{
-                rolDTO.getId(), 
-                rolDTO.getNombre(), 
-                rolDTO.getDescripcion(),
-                rolDTO.getActivo()
-            });
-        } else if(roles_uncast instanceof Roles) {
-            Roles rol = (Roles) roles_uncast;
-            modeloTabla.addRow(new Object[]{
-                rol.getId(), 
-                rol.getNombre(), 
-                rol.getDescripcion(),
-                rol.getActivo()
-            });
+    
+    private void cargarDatos() {
+        modeloTabla.setRowCount(0);
+        List<Object> roles = rolesDAO.getAll();
+
+        for(Object roles_uncast : roles) {
+            if(roles_uncast instanceof RolesDTO) {
+                RolesDTO rolDTO = (RolesDTO) roles_uncast;
+                modeloTabla.addRow(new Object[]{
+                    rolDTO.getId(), 
+                    rolDTO.getNombre(), 
+                    rolDTO.getDescripcion(),
+                    rolDTO.getActivo() // Envía 0 o 1 directamente
+                });
+            } else if(roles_uncast instanceof Roles) {
+                Roles rol = (Roles) roles_uncast;
+                modeloTabla.addRow(new Object[]{
+                    rol.getId(), 
+                    rol.getNombre(), 
+                    rol.getDescripcion(),
+                    rol.getActivo() // Envía 0 o 1 directamente
+                });
+            }
+        }
+
+        // Seleccionar primera fila si hay datos
+        if (modeloTabla.getRowCount() > 0) {
+            jTable1.setRowSelectionInterval(0, 0);
         }
     }
-}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;

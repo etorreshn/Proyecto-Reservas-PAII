@@ -9,6 +9,7 @@ package view;
  * @author Edwin
  */
 import bd.ConexionBD;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import utils.PasswordUtils; // Import correcto
@@ -78,6 +79,11 @@ public class JFLogin extends javax.swing.JDialog  {
         jTextField1.setName("jTextField1"); // NOI18N
 
         jPasswordField1.setName("jPasswordField1"); // NOI18N
+        jPasswordField1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jPasswordField1KeyPressed(evt);
+            }
+        });
 
         jButton1.setText("Aceptar");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -144,74 +150,82 @@ public class JFLogin extends javax.swing.JDialog  {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-String usuario = jTextField1.getText().trim();
-char[] passwordChars = jPasswordField1.getPassword();
+        String usuario = jTextField1.getText().trim();
+        char[] passwordChars = jPasswordField1.getPassword();
 
-if (usuario.isEmpty() || passwordChars.length == 0) { // Mejor práctica que isEmpty()
-    JOptionPane.showMessageDialog(this, 
-        "Usuario y contraseña son obligatorios", 
-        "Error", JOptionPane.WARNING_MESSAGE);
-    Arrays.fill(passwordChars, '0');
-    return;
-}
+        if (usuario.isEmpty() || passwordChars.length == 0) { // Mejor práctica que isEmpty()
+            JOptionPane.showMessageDialog(this, 
+                "Usuario y contraseña son obligatorios", 
+                "Error", JOptionPane.WARNING_MESSAGE);
+            Arrays.fill(passwordChars, '0');
+            return;
+        }
 
-try (Connection conn = ConexionBD.getConnection()) {
-    // Usa el mismo nombre de tabla (ej: "usuarios")
-    String sql = "SELECT contrasena, salt, activo FROM usuarios WHERE usuario = ?";
-    PreparedStatement stmt = conn.prepareStatement(sql);
-    stmt.setString(1, usuario);
-    ResultSet rs = stmt.executeQuery();
-    
-    if (rs.next()) {
-        if (rs.getInt("activo") == 0) {
+        try (Connection conn = ConexionBD.getConnection()) {
+            // Usa el mismo nombre de tabla (ej: "usuarios")
+            String sql = "SELECT contrasena, salt, activo FROM usuarios WHERE usuario = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, usuario);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                if (rs.getInt("activo") == 0) {
+                    JOptionPane.showMessageDialog(this,
+                        "Usuario bloqueado. Contacte al administrador.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                String hashBD = rs.getString("contrasena");
+                String saltBD = rs.getString("salt");
+                String hashCalculado = PasswordUtils.hashPassword(passwordChars, saltBD); // Usar char[]
+
+                if (hashBD.equals(hashCalculado)) {
+                    parent.notificarLogin(true);
+                    dispose();
+                    return;
+                }
+            }
+
+            // Manejo de intentos fallidos
+            intentos++;
+            if (intentos >= 3) {
+                String sqlUpdate = "UPDATE usuarios SET activo = 0 WHERE usuario = ?"; // Tabla unificada
+                try (PreparedStatement stmtUpdate = conn.prepareStatement(sqlUpdate)) {
+                    stmtUpdate.setString(1, usuario);
+                    stmtUpdate.executeUpdate();
+                }
+                JOptionPane.showMessageDialog(this,
+                    "Demasiados intentos fallidos. Usuario bloqueado.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(this,
+                    "Credenciales incorrectas. Intentos: " + intentos + "/3",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this,
-                "Usuario bloqueado. Contacte al administrador.",
+                "Error de conexión: " + ex.getMessage(),
                 "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+        } finally {
+            Arrays.fill(passwordChars, '0');
         }
-        
-        String hashBD = rs.getString("contrasena");
-        String saltBD = rs.getString("salt");
-        String hashCalculado = PasswordUtils.hashPassword(passwordChars, saltBD); // Usar char[]
-        
-        if (hashBD.equals(hashCalculado)) {
-            parent.notificarLogin(true);
-            dispose();
-            return;
-        }
-    }
-    
-    // Manejo de intentos fallidos
-    intentos++;
-    if (intentos >= 3) {
-        String sqlUpdate = "UPDATE usuarios SET activo = 0 WHERE usuario = ?"; // Tabla unificada
-        try (PreparedStatement stmtUpdate = conn.prepareStatement(sqlUpdate)) {
-            stmtUpdate.setString(1, usuario);
-            stmtUpdate.executeUpdate();
-        }
-        JOptionPane.showMessageDialog(this,
-            "Demasiados intentos fallidos. Usuario bloqueado.",
-            "Error", JOptionPane.ERROR_MESSAGE);
-        dispose();
-    } else {
-        JOptionPane.showMessageDialog(this,
-            "Credenciales incorrectas. Intentos: " + intentos + "/3",
-            "Error", JOptionPane.ERROR_MESSAGE);
-    }
-} catch (SQLException ex) {
-    JOptionPane.showMessageDialog(this,
-        "Error de conexión: " + ex.getMessage(),
-        "Error", JOptionPane.ERROR_MESSAGE);
-} finally {
-    Arrays.fill(passwordChars, '0');
-}
     }//GEN-LAST:event_jButton1ActionPerformed
+ 
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
             Arrays.fill(jPasswordField1.getPassword(), '\0');
     System.exit(0); // Cierra solo el diálogo de login
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jPasswordField1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jPasswordField1KeyPressed
+        // TODO add your handling code here:
+            if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+        jButton1ActionPerformed(null);  // Llama al método del botón "Aceptar"
+    }
+    }//GEN-LAST:event_jPasswordField1KeyPressed
 
     /**
      * @param args the command line arguments
