@@ -37,7 +37,7 @@ public class roles extends javax.swing.JDialog {
         this.parent = parent;
         modeloTabla = (DefaultTableModel) jTable1.getModel();
 
-        // Configurar CheckBox para columna Activo (índice 3)
+        // Configurar CheckBox para columna Activo (índice 3)s
         jTable1.getColumnModel().getColumn(3).setCellRenderer(new CheckBoxRenderer());
         jTable1.getColumnModel().getColumn(3).setCellEditor(new CheckBoxEditor(new JCheckBox()));
 
