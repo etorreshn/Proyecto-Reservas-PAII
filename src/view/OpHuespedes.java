@@ -199,7 +199,6 @@ public class OpHuespedes extends javax.swing.JDialog {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-  // TODO add your handling code here:
     if (Mode.equals("INS")) {
         System.out.println("Entró a INS");
 
